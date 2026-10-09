@@ -1,0 +1,723 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>На автомате</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Music&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f5f3ee;--card:#fff;--ink:#1f1d1a;--mute:#7a746c;--line:#e2ddd3;--btn:#ebe7df;--acc:#c2410c;--ok:#2f9e44;--bad:#e03131;--warn:#d98e04;color-scheme:light dark}
+@media (prefers-color-scheme:dark){:root{--bg:#121318;--card:#1b1d24;--ink:#ecebe7;--mute:#8e909b;--line:#2c2f39;--btn:#262933;--acc:#ff8c4a;--ok:#51cf66;--bad:#ff6b6b;--warn:#fcc419}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-tap-highlight-color:transparent}
+#app{max-width:640px;margin:0 auto;padding:12px 16px 48px}
+a{color:var(--acc)}
+button{font:inherit;color:inherit;border:0;cursor:pointer;background:var(--btn);border-radius:10px;touch-action:manipulation}
+.top{display:flex;align-items:center;gap:10px;margin:4px 0 12px}
+.top h1{font-size:26px;margin:0;letter-spacing:-.02em}
+.top .dt{font-size:18px;flex:1;letter-spacing:0}
+.top nav{margin-left:auto;display:flex;gap:8px}
+.sub{margin:0;color:var(--mute);font-size:14px}
+.ic{width:40px;height:40px;display:grid;place-items:center;border-radius:12px;background:var(--btn);color:var(--ink);text-decoration:none;font-size:18px;flex:none}
+.intro{color:var(--mute);margin:0 0 4px}
+h2{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--mute);margin:22px 0 8px}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px}
+.card{display:flex;flex-direction:column;gap:2px;padding:12px 14px 10px;background:var(--card);border:1px solid var(--line);border-radius:14px;color:inherit;text-decoration:none}
+.card:hover{border-color:var(--acc)}
+.card span{color:var(--mute);font-size:14px}
+.pg{display:block;height:4px;border-radius:2px;background:var(--line);margin-top:8px;overflow:hidden}
+.pg i{display:block;height:100%;background:var(--ok)}
+.card small{color:var(--mute);font-size:12px;min-height:1.4em}
+
+.opts{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.opts>button,.seg button{padding:6px 11px;font-size:14px;border-radius:999px;color:var(--mute)}
+.opts>button.on,.seg button.on{background:var(--ink);color:var(--bg)}
+.seg{display:inline-flex;align-items:center;flex-wrap:wrap;gap:3px}
+.seg em{font-style:normal;color:var(--mute);font-size:13px;margin:0 3px 0 4px}
+
+.qcard{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px 16px 0;text-align:center;min-height:200px;display:flex;flex-direction:column;overflow:hidden}
+#q{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding-bottom:14px}
+.pre{color:var(--mute);font-size:18px}
+.big{font-size:44px;font-weight:700;letter-spacing:-.02em;line-height:1.1}
+.post{color:var(--mute);font-size:15px}
+.bar{height:5px;margin:0 -16px;background:var(--line)}
+.bar i{display:block;height:100%;background:var(--ok);transform-origin:left;transform:scaleX(0)}
+.bar.late i{background:var(--warn)}
+.staff{width:min(100%,320px);height:auto;color:var(--ink)}
+.staff .ln{stroke:currentColor;stroke-width:1.1}
+.staff path,.mus{fill:currentColor}
+.mus{font-family:"Noto Music","Segoe UI Symbol","Apple Symbols","Noto Sans Symbols 2",serif}
+.staff .ghost{opacity:.35}
+.staff .ok,.staff .right{color:var(--ok)}
+.staff .bad{color:var(--bad)}
+.tab{width:min(100%,300px);height:auto}
+.tab .ln{stroke:var(--mute);stroke-width:1}
+.tab text{dominant-baseline:central;text-anchor:middle}
+.tab .tl{fill:var(--mute);font-size:12px}
+.tab .tb{fill:var(--card)}
+.tab .tf{fill:var(--acc);font-size:17px;font-weight:700}
+
+.fb{min-height:56px;padding:10px 4px;text-align:center;font-size:15px}
+.fb.fast,.fb.mid,.fb.slow{font-weight:700;font-size:22px}
+.fb.fast{color:var(--ok)}.fb.mid{color:var(--warn)}.fb.slow{color:var(--bad)}
+.fb.wrong b{color:var(--bad)}
+.fb div{color:var(--mute);margin-top:2px}
+.fb small{display:block;color:var(--mute);font-size:12px;margin-top:4px}
+#ans .row{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:6px}
+#ans button{padding:14px 0;font-size:16px;font-weight:600;border-radius:12px;background:var(--card);border:1px solid var(--line);white-space:nowrap}
+#ans .alt button{background:var(--btn)}
+#ans button:active{transform:scale(.97)}
+#ans button.ok{background:var(--ok);color:#fff;border-color:transparent}
+#ans button.bad{background:var(--bad);color:#fff;border-color:transparent}
+#ans button.sel{background:var(--ink);color:var(--bg);border-color:transparent}
+#ans button.done{width:100%;margin-top:4px;background:var(--acc);color:#fff;border-color:transparent}
+#ans button.right{border-color:var(--ok);box-shadow:inset 0 0 0 2px var(--ok)}
+@media (hover:hover){#ans button:hover{border-color:var(--mute)}}
+@media (max-width:420px){#ans .row{gap:4px}#ans .row button{font-size:14px;letter-spacing:-.03em}}
+.choices{display:grid;gap:6px}
+#ans .choices button{white-space:normal;padding:14px 6px}
+.big.sm{font-size:28px;letter-spacing:0;max-width:100%}
+.tag{color:var(--acc);font-size:12px;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}
+.play{width:84px;height:84px;border-radius:50%;background:var(--acc);color:#fff;font-size:32px;padding-left:6px;margin:4px 0}
+.play.wait{animation:pulse 1.4s ease-in-out infinite}
+@keyframes pulse{50%{transform:scale(1.08);box-shadow:0 0 0 10px color-mix(in srgb,var(--acc) 20%,transparent)}}
+.hear{display:flex;gap:8px;justify-content:center;margin:8px 0 0}
+.hear button{padding:7px 12px;font-size:14px}
+.card.weak{margin-top:14px;border-color:color-mix(in srgb,var(--bad) 45%,var(--line));background:color-mix(in srgb,var(--bad) 6%,var(--card))}
+.go{display:block;text-align:center;padding:14px;border-radius:14px;background:var(--acc);color:#fff;font-weight:700;text-decoration:none;margin:14px 0}
+.wk{display:flex;flex-direction:column;gap:6px}
+.wk div{display:grid;grid-template-columns:1fr auto;gap:0 12px;padding:10px 14px;background:var(--card);border:1px solid var(--line);border-radius:12px}
+.wk small{grid-column:1/-1;color:var(--mute);font-size:12px}
+.wk span{color:var(--ok);font-weight:600;white-space:nowrap}
+.wk em{grid-column:1/-1;font-style:normal;color:var(--bad);font-size:13px}
+.accsel{display:flex;justify-content:center;gap:6px;margin-bottom:8px}
+#ans .accsel button{width:60px;padding:6px 0;font-size:22px}
+#ans .accsel button.on{background:var(--ink);color:var(--bg)}
+.staff.ans{display:block;margin:0 auto;width:100%;max-width:420px;touch-action:none;cursor:pointer;background:var(--card);border:1px solid var(--line);border-radius:14px}
+.stat{display:flex;flex-wrap:wrap;gap:4px 16px;justify-content:center;color:var(--mute);font-size:13px;margin-top:16px}
+.stat b{color:var(--ink)}
+.kbd{display:none;text-align:center;color:var(--mute);font-size:12px}
+@media (hover:hover) and (pointer:fine){.kbd{display:block}}
+
+dialog{max-width:580px;width:calc(100% - 24px);max-height:calc(100% - 24px);border:0;border-radius:18px;padding:18px 22px 22px;background:var(--card);color:var(--ink);box-shadow:0 20px 60px rgba(0,0,0,.35)}
+dialog::backdrop{background:rgba(0,0,0,.5)}
+dialog h3{margin:18px 0 6px;font-size:19px}
+dialog h3:first-of-type{margin-top:0}
+dialog ul{padding-left:20px;margin:6px 0}
+dialog li{margin:6px 0}
+dialog .dx{float:right;margin:-4px -8px 0 8px}
+.lead{font-size:17px}
+.srow{display:flex;flex-direction:column;gap:6px;margin:14px 0}
+.srow>span:first-child{color:var(--mute);font-size:14px}
+.reset{padding:8px 14px;margin-top:10px;color:var(--bad)}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<dialog id="help">
+<form method="dialog" class="dx"><button class="ic" aria-label="Закрыть">✕</button></form>
+<h3>Зачем это</h3>
+<p class="lead">Базовая музыкальная теория проста и логична. Какая нота на 8-м ладу третьей струны? Какая четвёртая ступень в ми мажоре? Это несложно вычислить — нужно только чуть-чуть подумать.</p>
+<p>Но в музыке на «чуть-чуть подумать» времени нет. Пока ты отсчитываешь лады и вспоминаешь, сколько диезов в ми мажоре, музыка уже ушла вперёд. Чтобы свободно играть, импровизировать, читать с листа и подбирать на слух, ответы на такие вопросы нужно не вычислять, а <b>знать</b> — так же, как ты знаешь, что 7 × 8 = 56, или узнаёшь знакомое слово, не складывая его по буквам. Ответ должен приходить сам, без паузы даже на полсекунды.</p>
+<p>Понимать и знать на автомате — разные вещи. Понимание даёт теория, автоматизм — только повторение. Этот тренажёр — для повторения.</p>
+
+<h3>Как заниматься</h3>
+<ul>
+<li><b>Отвечай как можно быстрее.</b> Под вопросом бежит полоска — постарайся ответить, пока она не заполнилась. Время ответа зелёное, если ты уложился в цель, жёлтое — если почти, красное — если пришлось подумать. Цель меняется в настройках (⚙).</li>
+<li><b>Не гадай.</b> Если ответ не приходит сам — ничего страшного, посчитай. Главное — ответить верно, скорость придёт с повторением.</li>
+<li><b>Тренажёр подстраивается.</b> Он запоминает, где ты ошибаешься или думаешь дольше, и спрашивает это чаще, а выученное — реже.</li>
+<li><b>Слабые места</b> (на главном экране) — то, где ты ошибаешься или думаешь дольше всего, по всем упражнениям сразу. Там же можно потренировать только их.</li>
+<li><b>Собери аккорд</b> — отметь все ноты и нажми «Готово» (или Enter); цель по времени считается на каждую ноту.</li>
+<li><b>На слух</b> — лучше в наушниках. ▶ или пробел — послушать ещё раз; время считается с момента, когда прозвучал вопрос. Ошибся — можно сравнить правильный ответ со своим.</li>
+<li><b>«Выучено»</b> — то, на что ты стабильно отвечаешь верно и быстрее цели. Полоска на карточке упражнения показывает долю выученного.</li>
+<li><b>Начинай с простого</b>: без ♯ и ♭, без добавочных линеек, с тональностями до 1–2 знаков. Добавляй сложность, когда полоска заполнится.</li>
+<li><b>Понемногу, но каждый день.</b> 5–10 минут ежедневно дадут больше, чем час раз в неделю.</li>
+</ul>
+<p class="kbdh" style="color:var(--mute);font-size:14px">С клавиатуры: ноты — буквами C D E F G A B (или H); диез — сначала «=», бемоль — сначала «-»; ответы-цифры — цифрами; Enter — дальше; Esc — к списку упражнений.</p>
+
+<h3>Шпаргалка</h3>
+<ul>
+<li><b>Мажор</b>: тон – тон – полутон – тон – тон – тон – полутон. <b>Натуральный минор</b> — та же гамма, но от 6-й ступени.</li>
+<li><b>Порядок диезов</b>: Фа До Соль Ре Ля Ми Си. <b>Бемолей</b> — наоборот: Си Ми Ля Ре Соль До Фа.</li>
+<li><b>Мажор по знакам</b>: последний диез + полтона вверх (Фа♯ До♯ <u>Соль♯</u> → Ля мажор); у бемолей — предпоследний бемоль (Си♭ <u>Ми♭</u> Ля♭ → Ми♭ мажор). Один бемоль — Фа мажор.</li>
+<li><b>Параллельные тональности</b> — с одинаковыми знаками; минор на малую терцию (3 полутона) ниже мажора: До мажор ↔ Ля минор.</li>
+<li><b>Интервал</b>: число — сколько нот-букв он охватывает (Ре–Фа: Ре, Ми, Фа → терция), качество — сколько полутонов (Ре–Фа♯: 4 → большая). Обозначения: м — малая, б — большая, ч — чистая, ув — увеличенная, ум — уменьшённая.</li>
+<li><b>Аккорды</b>: мажорное трезвучие = б3 + м3, минорное = м3 + б3. Аккорды мажора по ступеням: I ii iii IV V vi vii° (большие цифры — мажорные, маленькие — минорные, ° — уменьшённый). Натурального минора: i ii° III iv v VI VII.</li>
+<li><b>Обозначения аккордов</b>: ° — уменьшённый, + — увеличенный, ø = m7♭5, maj7 — большая септима, 7 — малая; sus — терция заменена секундой или квартой; add9 — нона без септимы; 9, 11, 13 — септаккорд с ноной, ундецимой, терцдецимой; ♭9, ♯9, ♯11, ♭13 — альтерации; 7alt — доминант со всеми альтерациями сразу.</li>
+<li><b>Ступени на слух</b>: не пытайся услышать абсолютную высоту — слушай, как нота «ведёт себя» после каденции: 1 — покой, 7 — тянется вверх к тонике, 4 — тянется вниз к 3, 5 — устойчиво, но «открыто».</li>
+<li><b>Гитара</b> (строй E A D G B E): на 5-м ладу звучит следующая (более тонкая) открытая струна, кроме 3-й — у неё это 4-й лад. 12-й лад — та же нота, что и открытая струна, октавой выше. Гитара записывается нотами на октаву выше реального звучания.</li>
+<li><b>Буквенные обозначения</b>: C D E F G A B = До Ре Ми Фа Соль Ля Си. В немецкой традиции (и во многих российских учебниках) Си обозначают буквой H, а B — это Си♭. Переключается в настройках.</li>
+</ul>
+</dialog>
+
+<dialog id="set">
+<form method="dialog" class="dx"><button class="ic" aria-label="Закрыть">✕</button></form>
+<h3>Настройки</h3>
+<div id="setb"></div>
+</dialog>
+
+<script src="theory.js"></script>
+<script>
+// ---------- состояние ----------
+const LS = 'na-avtomate';
+const S = (() => { let d = {}; try { d = JSON.parse(localStorage.getItem(LS)) || {}; } catch {} return { naming: 'syl', h: false, goal: 1500, o: {}, st: {}, ...d }; })();
+const save = () => { try { localStorage.setItem(LS, JSON.stringify(S)); } catch {} };
+const $ = s => document.querySelector(s);
+const name = (n, naming = S.naming) => nm(n, naming, S.h);
+const kname = K => name(tonic(K)) + (K.m ? ' минор' : ' мажор');
+const kk = K => K.k + (K.m ? 'm' : 'M');
+const sigTxt = k => k ? Math.abs(k) + (k > 0 ? '♯' : '♭') : '0';
+const pcName = p => NAT.includes(p) ? name(sharpOf(p)) : name(sharpOf(p)) + ' / ' + name(flatOf(p));
+const strName = st => name(sharpOf(OPEN[st - 1] % 12));
+const chordSym = (K, d, sev) => name(scale(K)[d], 'let') + (sev ? QUAL7 : QUAL)[K.m][d];
+const pl = (n, f) => n + ' ' + f[n % 10 === 1 && n % 100 !== 11 ? 0 : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20) ? 1 : 2];
+const notes = acc => acc ? NOTES17 : NAT7;
+const allowed = (l, a) => NOTES17.some(n => n.l === l && n.a === a);
+const OCT = ['субконтроктавы', 'контроктавы', 'большой октавы', 'малой октавы', 'первой октавы', 'второй октавы', 'третьей октавы', 'четвёртой октавы'];
+const NUM = { 2: 'секунда', 3: 'терция', 4: 'кварта', 5: 'квинта', 6: 'секста', 7: 'септима', 9: 'нона', 11: 'ундецима', 13: 'терцдецима' };
+const num = t => t.replace(/[♭♯𝄫]/g, '');
+const rnd = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
+
+// ---------- звук: щипок Карплуса-Стронга ----------
+let actx, live = [];
+const PL = new Map();
+function ac() {
+  if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)();
+  if (actx.state === 'suspended') actx.resume();
+  return actx;
+}
+const audioReady = () => actx?.state === 'running';
+function pluck(m) {
+  if (PL.has(m)) return PL.get(m);
+  const a = actx, sr = a.sampleRate, f = 440 * 2 ** ((m - 69) / 12), n = Math.max(2, Math.round(sr / f));
+  const buf = a.createBuffer(1, Math.floor(sr * 2.2), sr), d = buf.getChannelData(0), ring = Float32Array.from({ length: n }, () => Math.random() * 2 - 1);
+  const rho = .001 ** (1 / (f * 1.6)); // −60 дБ к 1,6 с на любой высоте
+  for (let i = 0, j = 0; i < d.length; i++) { const k = (j + 1) % n; d[i] = ring[j]; ring[j] = rho * .5 * (ring[j] + ring[k]); j = k; }
+  PL.set(m, buf);
+  return buf;
+}
+function tone(m, at = 0, gain = .45) {
+  const a = ac(), s = a.createBufferSource(), g = a.createGain();
+  s.buffer = pluck(m); g.gain.value = gain;
+  s.connect(g).connect(a.destination); s.start(a.currentTime + at);
+  live.push(s);
+}
+const chordAt = (ms, at = 0) => ms.forEach((m, i) => tone(m, at + i * .015, Math.min(.4, 1.2 / ms.length)));
+const stopAudio = () => { live.forEach(s => { try { s.stop(); } catch {} }); live = []; };
+
+// ---------- на слух ----------
+const EAR_INT = ['м2', 'б2', 'м3', 'б3', 'ч4', 'тритон', 'ч5', 'м6', 'б6', 'м7', 'б7', 'ч8'];
+const EAR_INT_RU = ['малая секунда', 'большая секунда', 'малая терция', 'большая терция', 'чистая кварта', 'тритон', 'чистая квинта', 'малая секста', 'большая секста', 'малая септима', 'большая септима', 'октава'];
+const DIRS = { up: 'вверх', down: 'вниз', harm: 'одновременно' };
+const EAR_DEG = [['1', 0], ['♭2', 1], ['2', 1], ['♭3', 2], ['3', 2], ['4', 3], ['♯4', 3], ['5', 4], ['♭6', 5], ['6', 5], ['♭7', 6], ['7', 6]], DIA = [0, 2, 4, 5, 7, 9, 11];
+const earLab = c => ({ '': 'мажор', m: 'минор', '°': 'ум.', '+': 'ув.' })[c.s] ?? c.s;
+const voice = (r, c) => [r, ...c.f.map(t => r + DEG[t][1])];
+// диатонический аккорд ступени d (0..6) от тоники t: полутоны основного тона, терции, квинты (и септимы)
+const triad = (t, d, sev) => [0, 2, 4, ...(sev ? [6] : [])].map(i => t + MAJ[(d + i) % 7]);
+// бас внизу, остальное плотно в одной октаве — переходы между аккордами звучат гладко
+const voiced = ps => [40 + mod(ps[0] - 4, 12), ...ps.map(x => 55 + mod(x - 7, 12))];
+const cadence = t => [0, 3, 4, 0].forEach((d, i) => chordAt(voiced(triad(t, d)), i * .5));
+const PROGS = [[0, 3, 4, 0], [0, 4, 5, 3], [0, 5, 3, 4], [5, 3, 0, 4], [0, 3, 5, 4], [1, 4, 0], [0, 5, 1, 4], [0, 2, 3, 4], [0, 3, 0, 4], [2, 5, 1, 4], [3, 4, 2, 5]];
+const progLab = (pr, sev) => pr.map(d => (sev ? ROM7 : ROM)[0][d]).join('–');
+const keyOfPc = p => [0, 1, -1, 2, -2, 3, -3, 4, -4, 5, -5, 6].map(k => ({ k, m: 0 })).find(K => pc(tonic(K)) === p);
+
+// ---------- нотоносец ----------
+const SP = 12, BOT = { treble: 30, bass: 18 };
+const span = (c, led) => led ? { lo: BOT[c] - 6, hi: BOT[c] + 14 } : { lo: BOT[c] - 1, hi: BOT[c] + 9 };
+const clefs = o => o('clef') === 'both' ? ['treble', 'bass'] : [o('clef')];
+const KS = { 1: [38, 35, 39, 36, 33, 37, 34], '-1': [34, 37, 33, 36, 32, 35, 31] };
+const f1 = v => +v.toFixed(1);
+function geo(c, lo, hi) {
+  const bot = BOT[c], top = bot + 8, max = Math.max(hi + 1, top + 4), min = Math.min(lo - 1, bot - 4);
+  return { c, bot, top, max, y: s => (max - s + 1) * SP / 2, h: (max - min + 2) * SP / 2 };
+}
+// глиф вписывается в заданные по высоте границы (размеры — по метрикам SMuFL), шрифт любой
+let GM = {};
+const cx = document.createElement('canvas').getContext('2d');
+function glyph(ch, x, top, bot, anchor = 'start') {
+  if (!GM[ch]) { cx.font = '100px "Noto Music","Segoe UI Symbol","Apple Symbols",serif'; const m = cx.measureText(ch); GM[ch] = [m.actualBoundingBoxAscent, m.actualBoundingBoxDescent]; }
+  const [a, d] = GM[ch], fs = 100 * (bot - top) / (a + d || 100);
+  return `<text class="mus" x="${f1(x)}" y="${f1(top + a * fs / 100)}" font-size="${f1(fs)}" text-anchor="${anchor}">${ch}</text>`;
+}
+const AX = { 1: ['♯', 1.4, 1.39], '-1': ['♭', 1.76, .7], 0: ['♮', 1.36, 1.34] };
+const accSVG = (a, x, y, anchor) => { const [ch, u, d] = AX[a]; return glyph(ch, x, y - u * SP, y + d * SP, anchor); };
+const ledger = (x, y) => `<line class="ln" x1="${f1(x - SP * 1.3)}" x2="${f1(x + SP * 1.3)}" y1="${y}" y2="${y}"/>`;
+function head(x, y) { // целая нота: эллипс с наклонным просветом
+  const R = .82 * SP, r = .52 * SP, a = .46 * SP, b = .27 * SP, dx = a * Math.cos(.7), dy = a * Math.sin(.7);
+  return `<path fill-rule="evenodd" d="M${f1(x - R)} ${y}a${f1(R)} ${f1(r)} 0 1 0 ${f1(2 * R)} 0a${f1(R)} ${f1(r)} 0 1 0 ${f1(-2 * R)} 0Z M${f1(x - dx)} ${f1(y + dy)}A${f1(a)} ${f1(b)} -40 1 0 ${f1(x + dx)} ${f1(y - dy)}A${f1(a)} ${f1(b)} -40 1 0 ${f1(x - dx)} ${f1(y + dy)}Z"/>`;
+}
+function noteSVG(g, n, x, cls = '') {
+  let s = '';
+  for (let t = g.bot - 2; t >= n.s; t -= 2) s += ledger(x, g.y(t));
+  for (let t = g.top + 2; t <= n.s; t += 2) s += ledger(x, g.y(t));
+  s += head(x, g.y(n.s));
+  if (n.a) s += accSVG(n.a, x - SP * 1.15, g.y(n.s), 'end');
+  return `<g class="${cls}">${s}</g>`;
+}
+function staffSVG(c, ns, o = {}) {
+  const ss = ns.map(n => n.s), g = geo(c, Math.min(o.lo ?? 99, ...ss), Math.max(o.hi ?? 0, ...ss)), W = o.w || 200;
+  let s = '';
+  for (let i = 0; i <= 8; i += 2) s += `<line class="ln" x1="0" x2="${W}" y1="${g.y(g.bot + i)}" y2="${g.y(g.bot + i)}"/>`;
+  s += c === 'treble'
+    ? glyph('𝄞', SP * .3, g.y(g.bot + 2) - 4.39 * SP, g.y(g.bot + 2) + 2.63 * SP)
+    : glyph('𝄢', SP * .3, g.y(g.top - 2) - 1.05 * SP, g.y(g.top - 2) + 2.54 * SP);
+  const sg = Math.sign(o.k || 0);
+  if (sg) KS[sg].slice(0, Math.abs(o.k)).forEach((t, i) => s += accSVG(sg, SP * (3.4 + i * 1.1), g.y(t - (c === 'bass' ? 14 : 0)), 'start'));
+  ns.forEach(n => s += noteSVG(g, n, W * .6));
+  return { g, W, svg: `<svg class="staff ${o.cls || ''}" viewBox="0 0 ${W} ${g.h}">${s}<g class="marks"></g></svg>` };
+}
+function tabSVG(st, f) {
+  const G = 15, X = 120, W = 200;
+  let s = '';
+  for (let i = 0; i < 6; i++) { const y = 12 + i * G; s += `<line class="ln" x1="24" x2="${W - 4}" y1="${y}" y2="${y}"/><text class="tl" x="11" y="${y}">${i ? name(sharpOf(OPEN[i] % 12), 'let') : 'e'}</text>`; }
+  const y = 12 + (st - 1) * G;
+  return `<svg class="tab" viewBox="0 0 ${W} ${24 + 5 * G}">${s}<rect class="tb" x="${X - 13}" y="${y - 9}" width="26" height="18" rx="4"/><text class="tf" x="${X}" y="${y}">${f}</text></svg>`;
+}
+
+// ---------- упражнения ----------
+// items(o) — все вопросы при текущих опциях; q — вопрос; ans — как отвечать; ex — объяснение при ошибке
+const grid = sp => ({ type: 'notes', rows: 3, ok: v => same(v, sp.right), text: name(sp.right, sp.naming), ...sp });
+const choice = (options, r) => ({ type: 'choice', options, ok: i => i === r, text: options[r] });
+const keyItems = o => keys(o('sigs'), o('minor')).map(K => ({ key: kk(K), K }));
+const degItems = o => keys(o('sigs'), o('minor')).flatMap(K => rng(1, 6).map(d => ({ key: kk(K) + d, K, d })));
+const scaleEx = it => `${kname(it.K)}: ${scale(it.K).map(n => name(n)).join(' ')}`;
+const diaEx = it => `${kname(it.K)}: ${rng(0, 6).map(d => chordSym(it.K, d, it.sev)).join(' ')}`;
+const chordsOf = o => CHORDS.filter(c => o('cg').includes(c.g));
+const intItems = o => notes(o('acc')).flatMap(r => INT.map((v, i) => ({ key: nk(r) + '+' + i, r, i, u: up(r, v[1], v[2]) }))).filter(it => Math.abs(it.u.a) < 2);
+const intEx = it => { const [, st, se, nmm] = INT[it.i]; return `${name(it.r)} → ${name(it.u)}: ${pl(st + 1, ['ступень', 'ступени', 'ступеней'])}, ${pl(se, ['полутон', 'полутона', 'полутонов'])} — ${nmm}`; };
+
+const D = [
+  { id: 'let2syl', g: 'Названия нот', t: 'Буквы → ноты', d: 'C → До', opts: ['acc'],
+    items: o => notes(o('acc')).map(n => ({ key: nk(n), n })),
+    q: it => ({ big: name(it.n, 'let'), post: 'как называется нота?' }),
+    ans: (it, o) => grid({ rows: o('acc') ? 3 : 1, naming: 'syl', right: it.n }) },
+  { id: 'syl2let', g: 'Названия нот', t: 'Ноты → буквы', d: 'До → C', opts: ['acc'],
+    items: o => notes(o('acc')).map(n => ({ key: nk(n), n })),
+    q: it => ({ big: name(it.n, 'syl'), post: 'буквенное обозначение?' }),
+    ans: (it, o) => grid({ rows: o('acc') ? 3 : 1, naming: 'let', right: it.n }) },
+  { id: 'enh', g: 'Названия нот', t: 'Энгармонизмы', d: 'До♯ = Ре♭', opts: [],
+    items: () => ENH.flatMap(([x, y]) => [{ key: nk(x), n: x, r: y }, { key: nk(y), n: y, r: x }]),
+    q: it => ({ big: name(it.n), post: 'как ещё называется этот звук?' }),
+    ans: it => grid({ right: it.r }) },
+
+  { id: 'staff2name', g: 'Нотный стан', t: 'Нота → название', d: 'читаем ноты', opts: ['clef', 'ledger', 'acc'],
+    items: o => clefs(o).flatMap(c => { const { lo, hi } = span(c, o('ledger')); return rng(lo, hi).flatMap(s => (o('acc') ? [-1, 0, 1] : [0]).filter(a => allowed(s % 7, a)).map(a => ({ key: c + s + ':' + a, c, s, a }))); }),
+    q: (it, o) => ({ svg: staffSVG(it.c, [{ s: it.s, a: it.a }], span(it.c, o('ledger'))).svg }),
+    ans: (it, o) => grid({ rows: o('acc') ? 3 : 1, right: N(it.s % 7, it.a) }),
+    ex: it => { const n = N(it.s % 7, it.a), oc = Math.floor(it.s / 7); return `${name(n, 'syl')} ${OCT[oc]} (${name(n, 'let')}${oc})`; } },
+  { id: 'name2staff', g: 'Нотный стан', t: 'Название → нота', d: 'найди ноту на нотоносце', opts: ['clef', 'ledger', 'acc'],
+    items: o => clefs(o).flatMap(c => notes(o('acc')).map(n => ({ key: c + nk(n), c, n }))),
+    q: it => ({ big: name(it.n), post: `покажи в ${it.c === 'bass' ? 'басовом' : 'скрипичном'} ключе (любая октава)` }),
+    ans: (it, o) => { const { lo, hi } = span(it.c, o('ledger')); return { type: 'staff', clef: it.c, lo, hi, acc: o('acc'), text: name(it.n),
+      ok: v => v.s % 7 === it.n.l && v.a === it.n.a, right: rng(lo, hi).filter(s => s % 7 === it.n.l).map(s => ({ s, a: it.n.a })) }; } },
+
+  { id: 'tab2name', g: 'Гитара', t: 'Струна и лад → нота', d: '3-я струна, 8-й лад → ?', opts: ['strings', 'frets', 'acc', 'tabAns'],
+    items: o => o('strings').flatMap(st => rng(0, o('frets')).filter(f => o('acc') || NAT.includes((OPEN[st - 1] + f) % 12)).map(f => ({ key: st + '.' + f, st, f, m: OPEN[st - 1] + f }))),
+    q: it => ({ svg: tabSVG(it.st, it.f), post: `${it.st}-я струна, ${it.f ? it.f + '-й лад' : 'открытая'}` }),
+    ans: (it, o) => {
+      const p = it.m % 12;
+      if (o('tabAns') === 'name') return grid({ rows: o('acc') ? 3 : 1, right: sharpOf(p), ok: v => pc(v) === p, text: pcName(p) });
+      const ms = o('strings').map(s => OPEN[s - 1]), w = it.m + 12; // гитара пишется октавой выше
+      return { type: 'staff', clef: 'treble', lo: midiStep(Math.min(...ms) + 12), hi: midiStep(Math.max(...ms) + o('frets') + 12), acc: o('acc'), text: pcName(p),
+        ok: v => stepMidi(v) === w, right: [{ s: midiStep(w), a: sharpOf(w % 12).a }] };
+    },
+    ex: (it, o) => `${it.st}-я струна — ${strName(it.st)}${it.f ? ', + ' + pl(it.f, ['полутон', 'полутона', 'полутонов']) : ''}` + (o('tabAns') === 'staff' ? '. Гитара записывается на октаву выше звучания' : '') },
+  { id: 'name2fret', g: 'Гитара', t: 'Нота → лад', d: 'где Ля на 3-й струне?', opts: ['strings', 'acc'],
+    items: o => o('strings').flatMap(st => notes(o('acc')).map(n => ({ key: st + '/' + nk(n), st, n }))),
+    q: it => ({ big: name(it.n), post: `${it.st}-я струна (${strName(it.st)}) — какой лад?` }),
+    ans: it => choice(rng(0, 11).map(String), mod(pc(it.n) - OPEN[it.st - 1], 12)),
+    ex: it => { const f = mod(pc(it.n) - OPEN[it.st - 1], 12); return f ? `${f}-й лад, и октавой выше — ${f + 12}-й` : 'открытая струна и 12-й лад'; } },
+
+  { id: 'key2sig', g: 'Тональности', t: 'Тональность → знаки', d: 'Ля мажор → 3♯', opts: ['sigs', 'minor'],
+    items: keyItems,
+    q: it => ({ big: kname(it.K), post: 'сколько знаков при ключе?' }),
+    ans: (it, o) => { const ks = rng(-o('sigs'), o('sigs')); return choice(ks.map(sigTxt), ks.indexOf(it.K.k)); },
+    ex: it => `${kname(it.K)}: ${it.K.k ? sigNotes(it.K.k).map(n => name(n)).join(' ') : 'без знаков'}` + (it.K.m ? ` (как у ${kname({ k: it.K.k, m: 0 })}а)` : '') },
+  { id: 'sig2key', g: 'Тональности', t: 'Знаки → тональность', d: '3♯ → Ля мажор', opts: ['sigs', 'minor'],
+    items: keyItems,
+    q: it => ({ svg: staffSVG('treble', [], { k: it.K.k }).svg, post: `${sigTxt(it.K.k)} — какой ${it.K.m ? 'минор' : 'мажор'}?` }),
+    ans: it => grid({ right: tonic(it.K) }),
+    ex: it => `${sigTxt(it.K.k)}: ${kname({ k: it.K.k, m: 0 })} / ${kname({ k: it.K.k, m: 1 })}` },
+  { id: 'relative', g: 'Тональности', t: 'Параллельная тональность', d: 'Ми мажор ↔ До♯ минор', opts: ['sigs'],
+    items: o => keys(o('sigs'), true).map(K => ({ key: kk(K), K })),
+    q: it => ({ big: kname(it.K), post: `параллельный ${it.K.m ? 'мажор' : 'минор'}?` }),
+    ans: it => grid({ right: tonic({ k: it.K.k, m: 1 - it.K.m }) }),
+    ex: it => `${kname({ k: it.K.k, m: 0 })} ↔ ${kname({ k: it.K.k, m: 1 })}: знаки те же (${sigTxt(it.K.k)}), минор на малую терцию ниже` },
+  { id: 'deg2note', g: 'Тональности', t: 'Ступень → нота', d: 'Ми мажор, 4-я ступень → Ля', opts: ['sigs', 'minor'],
+    items: degItems,
+    q: it => ({ pre: kname(it.K), big: `${it.d + 1}-я ступень`, post: 'какая нота?' }),
+    ans: it => grid({ right: scale(it.K)[it.d] }),
+    ex: scaleEx },
+  { id: 'note2deg', g: 'Тональности', t: 'Нота → ступень', d: 'Ля в Ми мажоре → 4', opts: ['sigs', 'minor'],
+    items: degItems,
+    q: it => ({ pre: kname(it.K), big: name(scale(it.K)[it.d]), post: 'какая это ступень?' }),
+    ans: it => choice(rng(1, 7).map(String), it.d),
+    ex: scaleEx },
+
+  { id: 'intName', g: 'Интервалы', t: 'Назови интервал', d: 'Ре → Фа♯ = б3', opts: ['acc'],
+    items: intItems,
+    q: it => ({ big: `${name(it.r)} → ${name(it.u)}`, post: 'какой интервал (вверх)?' }),
+    ans: it => choice(INT.map(v => v[0]), it.i),
+    ex: intEx },
+  { id: 'intBuild', g: 'Интервалы', t: 'Построй интервал', d: 'Ре + б3 = Фа♯', opts: ['acc'],
+    items: intItems,
+    q: it => ({ big: `${name(it.r)} + ${INT[it.i][0]}`, post: `${INT[it.i][3]} вверх — какая нота?` }),
+    ans: it => grid({ right: it.u }),
+    ex: intEx },
+
+  { id: 'chordTone', g: 'Аккорды', t: 'Звуки аккорда', d: 'септима в Dm7♭5 → До', opts: ['acc', 'cg'],
+    items: o => notes(o('acc')).flatMap(r => chordsOf(o).flatMap(c => c.f.map((t, j) => ({ key: nk(r) + c.s + j, r, c, t, u: up(r, ...DEG[t]) }))))
+      .filter(it => Math.abs(it.u.a) < 2),
+    q: it => ({ big: name(it.r, 'let') + it.c.s, post: NUM[num(it.t)] + (it.c.f.filter(t => num(t) === num(it.t)).length > 1 ? ` (${it.t})` : '') + '?' }),
+    ans: it => grid({ right: it.u }),
+    ex: it => `${name(it.r, 'let') + it.c.s} = 1 ${it.c.f.join(' ')}: ${tonesOf(it.r, it.c).map(n => name(n)).join(' ')}` },
+  { id: 'chordNotes', g: 'Аккорды', t: 'Аккорд по нотам', d: 'До Ми Соль Си♭ Ре♯ → C7♯9', opts: ['acc', 'cg'],
+    items: o => notes(o('acc')).flatMap(r => chordsOf(o).map(c => ({ key: nk(r) + c.s, r, c, ns: tonesOf(r, c) }))).filter(it => it.ns.every(n => Math.abs(n.a) < 2)),
+    q: it => ({ big: it.ns.map(n => name(n)).join(' '), post: 'какой это аккорд?' }),
+    ans: it => { const cs = CHORDS.filter(c => c.g === it.c.g); return choice(cs.map(c => name(it.r, 'let') + c.s), cs.indexOf(it.c)); },
+    ex: it => `${name(it.r, 'let') + it.c.s} = 1 ${it.c.f.join(' ')} — ${it.c.ru}` },
+  { id: 'chordBuild', g: 'Аккорды', t: 'Собери аккорд', d: 'D7♯9 → отметь все ноты', opts: ['acc', 'cg'],
+    items: o => notes(o('acc')).flatMap(r => chordsOf(o).map(c => ({ key: nk(r) + c.s, r, c, ns: tonesOf(r, c) }))).filter(it => it.ns.every(n => Math.abs(n.a) < 2)),
+    q: it => ({ big: name(it.r, 'let') + it.c.s, post: 'отметь все ноты аккорда' }),
+    ans: it => ({ type: 'multi', rows: 3, per: it.ns.length, right: it.ns, text: it.ns.map(n => name(n)).join(' '),
+      ok: v => v.length === it.ns.length && it.ns.every(n => v.some(x => same(x, n))) }),
+    ex: it => `${name(it.r, 'let') + it.c.s} = 1 ${it.c.f.join(' ')} — ${it.c.ru}` },
+  { id: 'chordFormula', g: 'Аккорды', t: 'Формулы аккордов', d: 'm7♭5 → 1 ♭3 ♭5 ♭7', opts: ['cg'],
+    items: o => chordsOf(o).map(c => ({ key: c.s || 'maj', c })),
+    q: it => ({ big: 'C' + it.c.s, post: 'из каких ступеней состоит?' }),
+    ans: it => { const cs = CHORDS.filter(c => c.g === it.c.g); return choice(cs.map(c => '1 ' + c.f.join(' ')), cs.indexOf(it.c)); },
+    ex: it => `${it.c.ru}: ${tonesOf(N(0), it.c).map(n => name(n)).join(' ')}` },
+  { id: 'deg2chord', g: 'Аккорды', t: 'Ступень → аккорд', d: 'vi в Соль мажоре → Em', opts: ['sigs', 'minor', 'sev'],
+    items: o => degItems(o).map(it => ({ ...it, key: it.key + (o('sev') ? '7' : ''), sev: o('sev') })),
+    q: it => ({ pre: kname(it.K), big: (it.sev ? ROM7 : ROM)[it.K.m][it.d], post: 'какой аккорд? (основной тон)' }),
+    ans: it => grid({ right: scale(it.K)[it.d], text: chordSym(it.K, it.d, it.sev) }),
+    ex: diaEx },
+  { id: 'chord2deg', g: 'Аккорды', t: 'Аккорд → ступень', d: 'Em7 в Соль мажоре → vi7', opts: ['sigs', 'minor', 'sev'],
+    items: o => degItems(o).map(it => ({ ...it, key: it.key + (o('sev') ? '7' : ''), sev: o('sev') })),
+    q: it => ({ pre: kname(it.K), big: chordSym(it.K, it.d, it.sev), post: 'какая ступень?' }),
+    ans: it => choice((it.sev ? ROM7 : ROM)[it.K.m], it.d),
+    ex: diaEx },
+
+  { id: 'earInt', g: 'На слух', t: 'Интервалы', d: 'услышал — назвал', opts: ['dir'], ear: 1,
+    items: o => EAR_INT.map((_, i) => ({ key: o('dir') + i, i, dir: o('dir') })),
+    label: it => `${EAR_INT_RU[it.i]} ${DIRS[it.dir]}`,
+    q: () => ({ post: 'какой интервал?' }),
+    ans: it => {
+      const r = rnd(48, 62), go = i => it.dir === 'harm' ? (chordAt([r, r + i + 1]), 0) : it.dir === 'up' ? (tone(r), tone(r + i + 1, .7), .7) : (tone(r + i + 1), tone(r, .7), .7);
+      return { ...choice(EAR_INT, it.i), play: () => go(it.i), hear: go, ex: `${EAR_INT_RU[it.i]} — ${pl(it.i + 1, ['полутон', 'полутона', 'полутонов'])}` };
+    } },
+  { id: 'earChord', g: 'На слух', t: 'Аккорды', d: 'мажор, минор, септаккорды…', opts: ['cg'], ear: 1,
+    items: o => chordsOf(o).map(c => ({ key: c.s || 'maj', c, cg: o('cg') })),
+    label: it => it.c.ru + (it.c.s ? ` (${it.c.s})` : ''),
+    q: () => ({ post: 'какой аккорд?' }),
+    ans: it => {
+      const cs = CHORDS.filter(c => it.cg.includes(c.g)), r = rnd(48, 55), go = i => (chordAt(voice(r, cs[i])), 0);
+      return { ...choice(cs.map(earLab), cs.indexOf(it.c)), play: () => go(cs.indexOf(it.c)), hear: go, ex: `${it.c.ru}: 1 ${it.c.f.join(' ')}` };
+    } },
+  { id: 'earDeg', g: 'На слух', t: 'Ступени в тональности', d: 'каденция, потом нота — какая ступень?', opts: ['chrom'], ear: 1,
+    items: o => (o('chrom') ? rng(0, 11) : DIA).map(p => ({ key: 'p' + p, p, ch: o('chrom') })),
+    label: it => 'ступень ' + EAR_DEG[it.p][0],
+    q: () => ({ post: 'какая ступень?' }),
+    ans: it => {
+      const ps = it.ch ? rng(0, 11) : DIA, t = rnd(0, 11), K = keyOfPc(t), nt = p => 60 + mod(t + p, 12);
+      return { ...choice(ps.map(p => EAR_DEG[p][0]), ps.indexOf(it.p)),
+        play: () => (cadence(t), tone(nt(it.p), 2.3), 2.3),
+        hear: i => (tone(nt(0)), tone(nt(ps[i]), .5), .5),
+        ex: `${kname(K)}: ${name(up(tonic(K), EAR_DEG[it.p][1], it.p))} — ступень ${EAR_DEG[it.p][0]}` };
+    } },
+  { id: 'earDia', g: 'На слух', t: 'Аккорды в тональности', d: 'каденция, потом аккорд — какая ступень?', opts: ['sev'], ear: 1,
+    items: o => rng(0, 6).map(d => ({ key: 'd' + d + (o('sev') ? '7' : ''), d, sev: o('sev') })),
+    label: it => 'аккорд ' + (it.sev ? ROM7 : ROM)[0][it.d],
+    q: () => ({ post: 'какой это аккорд в тональности?' }),
+    ans: it => {
+      const t = rnd(0, 11), K = keyOfPc(t), at = i => voiced(triad(t, i, it.sev));
+      return { ...choice((it.sev ? ROM7 : ROM)[0], it.d),
+        play: () => (cadence(t), chordAt(at(it.d), 2.3), 2.3),
+        hear: i => (chordAt(at(0)), chordAt(at(i), .7), .7),
+        ex: `${kname(K)}: ${chordSym(K, it.d, it.sev)} — ${(it.sev ? ROM7 : ROM)[0][it.d]}` };
+    } },
+  { id: 'earProg', g: 'На слух', t: 'Последовательности', d: 'I–V–vi–IV, ii–V–I…', opts: ['sev'], ear: 1,
+    items: o => PROGS.map((_, i) => ({ key: 'p' + i + (o('sev') ? '7' : ''), i, sev: o('sev') })),
+    label: it => progLab(PROGS[it.i], it.sev),
+    q: () => ({ post: 'какая последовательность?' }),
+    ans: it => {
+      const t = rnd(0, 11), K = keyOfPc(t), go = i => (PROGS[i].forEach((d, j) => chordAt(voiced(triad(t, d, it.sev)), j * .8)), (PROGS[i].length - 1) * .8);
+      return { ...choice(PROGS.map(pr => progLab(pr, it.sev)), it.i), play: () => go(it.i), hear: go,
+        ex: `${kname(K)}: ${PROGS[it.i].map(d => chordSym(K, d, it.sev)).join(' – ')}` };
+    } },
+];
+
+const OPT = {
+  acc: { def: false, label: 'с ♯ и ♭' },
+  ledger: { def: false, label: 'добавочные линейки' },
+  minor: { def: false, label: 'и минор' },
+  sev: { def: false, label: 'септаккорды' },
+  chrom: { def: false, label: 'хроматические ступени' },
+  cg: { def: ['tri'], label: 'аккорды', vals: [['tri', 'трезвучия'], ['sus', 'sus и 6'], ['sev', 'септаккорды'], ['ext', '9 · 11 · 13'], ['alt', 'альтерированные']], multi: true },
+  dir: { def: 'up', vals: [['up', 'вверх'], ['down', 'вниз'], ['harm', 'одновременно']] },
+  clef: { def: 'treble', vals: [['treble', 'скрипичный'], ['bass', 'басовый'], ['both', 'оба']] },
+  tabAns: { def: 'name', label: 'ответ:', vals: [['name', 'название'], ['staff', 'нотный стан']] },
+  sigs: { def: 4, label: 'знаков до', vals: [1, 2, 3, 4, 5, 6, 7] },
+  frets: { def: 12, label: 'лады до', vals: [3, 5, 7, 12] },
+  strings: { def: [1, 2, 3, 4, 5, 6], label: 'струны', vals: [1, 2, 3, 4, 5, 6], multi: true },
+};
+const opt = (d, k) => S.o[d.id]?.[k] ?? OPT[k].def;
+const oFn = d => k => opt(d, k);
+const itemsOf = d => d.items(oFn(d));
+const mastered = s => s && s.n >= 2 && s.e < .2 && s.t <= S.goal;
+const parse = v => ({ true: true, false: false })[v] ?? (isNaN(v) ? v : +v);
+// статистика вопроса; в «слабых местах» вопрос помнит, из какого он упражнения
+const stOf = it => S.st[it.sid || cur.id]?.[it.skey || it.key];
+const badness = s => 2 * s.e + Math.max(0, s.t / S.goal - 1);
+const strip = h => h.replace(/<[^>]+>/g, '');
+function label(d, it) {
+  if (d.label) return d.label(it);
+  const q = d.q(it, oFn(d)), t = [q.pre, q.big].filter(Boolean).join(': ');
+  return t && q.post ? t + ' · ' + q.post : t || q.post || d.ex?.(it, oFn(d)) || '';
+}
+function weakList() {
+  return D.flatMap(d => { const st = S.st[d.id] || {}; return itemsOf(d).map(it => ({ d, it, s: st[it.key] })).filter(x => x.s && !mastered(x.s) && badness(x.s) > .1); })
+    .sort((a, b) => badness(b.s) - badness(a.s));
+}
+function weakDrill(list) {
+  const its = list.map(x => ({ ...x.it, key: x.d.id + '|' + x.it.key, sid: x.d.id, skey: x.it.key, src: x.d }));
+  return { id: 'weak', t: 'Слабые места', opts: [], items: () => its,
+    q: it => ({ ...it.src.q(it, oFn(it.src)), tag: it.src.g + ' · ' + it.src.t }),
+    ans: it => it.src.ans(it, oFn(it.src)),
+    ex: it => it.src.ex?.(it, oFn(it.src)) };
+}
+
+// ---------- экраны ----------
+let cur, item, spec, t0, tAns, lateT, nextT, locked, waitTap, pend = 0, last = [], sess;
+const clearTimers = () => { clearTimeout(lateT); clearTimeout(nextT); };
+
+function home() {
+  const wn = weakList().length;
+  $('#app').innerHTML = `
+  <header class="top"><div><h1>На автомате</h1><p class="sub">тренажёр музыкальной теории на скорость</p></div>
+    <nav><button class="ic" onclick="help.showModal()" aria-label="Справка">?</button><button class="ic" onclick="openSet()" aria-label="Настройки">⚙</button></nav></header>
+  <p class="intro">Понять теорию несложно. Сложно — отвечать мгновенно, не задумываясь. Здесь тренируется именно это. <a href="#" onclick="help.showModal();return false">Зачем и как заниматься&nbsp;→</a></p>
+  <a class="card weak" href="#weak"><b>Слабые места</b><span>${wn ? `${pl(wn, ['вопрос', 'вопроса', 'вопросов'])}, где ты ошибаешься или думаешь дольше цели` : 'пока пусто — здесь соберётся то, что даётся хуже всего'}</span></a>
+  ${[...new Set(D.map(d => d.g))].map(g => `<h2>${g}</h2><div class="cards">${D.filter(d => d.g === g).map(card).join('')}</div>`).join('')}`;
+}
+function card(d) {
+  const its = itemsOf(d), st = S.st[d.id] || {}, p = Math.round(100 * its.filter(i => mastered(st[i.key])).length / its.length);
+  return `<a class="card" href="#${d.id}"><b>${d.t}</b><span>${d.d}</span><i class="pg"><i style="width:${p}%"></i></i><small>${p ? `выучено ${p}%` : ''}</small></a>`;
+}
+function weak() {
+  const list = weakList(), sec = ms => (ms / 1000).toFixed(1).replace('.', ',') + ' с';
+  $('#app').innerHTML = `
+  <header class="top"><a class="ic" href="#" aria-label="К списку">←</a><h1 class="dt">Слабые места</h1></header>
+  <p class="intro">Вопросы из всех упражнений (с их текущими настройками), где ты чаще ошибаешься или отвечаешь дольше цели. Худшие — сверху.</p>
+  ${list.length ? `<a class="go" href="#weak-go">Тренировать худшие ${Math.min(20, list.length)}</a>
+  <div class="wk">${list.slice(0, 40).map(x => `<div><small>${x.d.g} · ${x.d.t}</small><b>${strip(label(x.d, x.it))}</b><span>→ ${x.d.ans(x.it, oFn(x.d)).text}</span><em>ошибки ${Math.round(x.s.e * 100)}% · ${sec(x.s.t)}</em></div>`).join('')}</div>`
+    : '<p class="intro">Пока пусто. Позанимайся немного — и здесь появится то, что даётся хуже всего.</p>'}`;
+}
+function optsHTML() {
+  return cur.opts.map(k => {
+    const o = OPT[k], v = opt(cur, k);
+    if (!o.vals) return `<button class="${v ? 'on' : ''}" data-opt="${k}">${o.label}</button>`;
+    const on = x => o.multi ? v.includes(x) : v === x;
+    return `<span class="seg">${o.label ? `<em>${o.label}</em>` : ''}${o.vals.map(x => { const [val, lab] = Array.isArray(x) ? x : [x, x]; return `<button class="${on(val) ? 'on' : ''}" data-opt="${k}" data-v="${val}">${lab}</button>`; }).join('')}</span>`;
+  }).join('');
+}
+function drill() {
+  sess = { n: 0, ok: 0, ms: 0, streak: 0 }; last = [];
+  $('#app').innerHTML = `
+  <header class="top"><a class="ic" href="${cur.id === 'weak' ? '#weak' : '#'}" aria-label="Назад">←</a><h1 class="dt">${cur.t}</h1><button class="ic" onclick="help.showModal()" aria-label="Справка">?</button></header>
+  <div class="opts" id="opts">${optsHTML()}</div>
+  <section class="qcard"><div id="q"></div><div class="bar" id="bar"><i></i></div></section>
+  <div id="fb" class="fb"></div>
+  <div id="ans"></div>
+  <div id="stat" class="stat"></div>
+  <p class="kbd" id="kbd"></p>`;
+  next();
+}
+
+function pick(its) {
+  const pool = its.filter(i => !last.includes(i.key));
+  // ponytail: простая взвешенная выборка (ошибки и медленные — чаще); настоящий SRS с интервалами — если понадобится
+  const w = pool.map(i => { const s = stOf(i); return !s ? 3 : mastered(s) ? .3 : 1 + 8 * s.e + 2 * Math.max(0, s.t / S.goal - 1); });
+  let r = Math.random() * w.reduce((a, b) => a + b, 0);
+  return pool.find((_, i) => (r -= w[i]) <= 0) || pool.at(-1);
+}
+function next() {
+  clearTimers(); stopAudio(); locked = waitTap = false; t0 = null;
+  const its = itemsOf(cur);
+  item = pick(its);
+  last = [item.key, ...last].slice(0, Math.min(3, its.length - 1));
+  render();
+  const b = $('#bar'), i = b.firstChild;
+  b.classList.remove('late'); i.style.transition = 'none'; i.style.transform = 'scaleX(0)';
+  // на слух: часы идут с момента, когда прозвучало главное; без разрешения на звук — ждём нажатия ▶
+  if (!spec.play) startClock(0);
+  else if (audioReady()) startClock(spec.play() * 1000);
+}
+const goal = () => S.goal * (spec.per || 1);
+const sel = () => [...document.querySelectorAll('#ans .sel')].map(btnVal);
+function startClock(delay) {
+  const b = $('#bar'), i = b.firstChild;
+  t0 = performance.now() + delay; i.offsetWidth;
+  i.style.transition = `transform ${goal()}ms linear ${delay}ms`; i.style.transform = 'scaleX(1)';
+  lateT = setTimeout(() => b.classList.add('late'), goal() + delay);
+  $('#q .play')?.classList.remove('wait');
+  if (spec.play) $('#fb').innerHTML = '';
+}
+function play() {
+  if (t0 == null) startClock(spec.play() * 1000);
+  else { stopAudio(); spec.play(); }
+}
+function render() {
+  const q = cur.q(item, oFn(cur));
+  spec = cur.ans(item, oFn(cur));
+  $('#q').innerHTML = (q.tag ? `<div class="tag">${q.tag}</div>` : '') + (q.pre ? `<div class="pre">${q.pre}</div>` : '')
+    + (q.big ? `<div class="big${strip(q.big).length > 11 ? ' sm' : ''}">${q.big}</div>` : '') + (q.svg || '')
+    + (spec.play ? `<button class="play${audioReady() ? '' : ' wait'}" data-play aria-label="Слушать">▶</button>` : '')
+    + (q.post ? `<div class="post">${q.post}</div>` : '');
+  if (spec.type === 'notes' || spec.type === 'multi') $('#ans').innerHTML = (spec.rows === 3 ? [1, 0, -1] : [0]).map(a => `<div class="row${a ? ' alt' : ''}">${rng(0, 6).map(l => `<button data-l="${l}" data-a="${a}">${name(N(l, a), spec.naming)}</button>`).join('')}</div>`).join('')
+    + (spec.type === 'multi' ? '<button class="done" data-done>Готово</button>' : '');
+  if (spec.type === 'choice') $('#ans').innerHTML = `<div class="choices" style="grid-template-columns:repeat(auto-fill,minmax(${Math.max(60, 9 * Math.max(...spec.options.map(t => t.length)) + 20)}px,1fr))">${spec.options.map((t, i) => `<button data-i="${i}">${t}</button>`).join('')}</div>`;
+  if (spec.type === 'staff') staffAns();
+  setPend(0);
+  $('#fb').className = 'fb'; $('#fb').innerHTML = spec.play && !audioReady() ? 'нажми ▶, чтобы услышать вопрос' : '';
+  $('#kbd').textContent = (spec.type === 'notes' || spec.type === 'multi' ? 'Клавиатура: C D E F G A B (H) · диез — сначала «=», бемоль — сначала «-» · ' + (spec.type === 'multi' ? 'Enter — готово · ' : '') : spec.type === 'choice' && spec.options.every(t => /^\d+$/.test(t)) ? 'Клавиатура: цифры · ' : '')
+    + (spec.play ? 'пробел — послушать ещё раз · ' : '') + 'Esc — к списку';
+  stat();
+}
+function staffAns() {
+  spec.st = staffSVG(spec.clef, [], { lo: spec.lo, hi: spec.hi, w: 220, cls: 'ans' });
+  $('#ans').innerHTML = (spec.acc ? `<div class="accsel">${[[-1, '♭'], [0, '♮'], [1, '♯']].map(([a, t]) => `<button data-acc="${a}">${t}</button>`).join('')}</div>` : '') + spec.st.svg;
+  const svg = $('#ans svg'), marks = svg.querySelector('.marks'), { g, W } = spec.st;
+  const at = e => { const r = svg.getBoundingClientRect(); return Math.max(spec.lo, Math.min(spec.hi, Math.round(g.max + 1 - (e.clientY - r.top) * g.h / r.height / (SP / 2)))); };
+  // палец можно вести по нотоносцу — ответ засчитывается, когда отпускаешь
+  svg.onpointerdown = svg.onpointermove = e => { if (!locked) marks.innerHTML = noteSVG(g, { s: at(e), a: pend }, W * .6, 'ghost'); };
+  svg.onpointerleave = () => { if (!locked) marks.innerHTML = ''; };
+  svg.onpointerup = e => answer({ s: at(e), a: pend });
+}
+function setPend(a) {
+  pend = a;
+  document.querySelectorAll('[data-acc]').forEach(b => b.classList.toggle('on', +b.dataset.acc === a));
+}
+const btnVal = b => b.dataset.l != null ? N(+b.dataset.l, +b.dataset.a) : +b.dataset.i;
+
+function answer(v, btn) {
+  if (locked || t0 == null) return;
+  locked = true; tAns = performance.now(); clearTimeout(lateT);
+  const ms = Math.max(0, Math.min(tAns - t0, 10000 * (spec.per || 1))), ok = spec.ok(v), i = $('#bar i');
+  i.style.transform = getComputedStyle(i).transform; i.style.transition = 'none';
+  record(ok, ms / (spec.per || 1)); // в «собери аккорд» цель — на каждую ноту
+  if (spec.type === 'staff') {
+    const { g, W } = spec.st;
+    $('#ans .marks').innerHTML = ok ? noteSVG(g, v, W * .6, 'ok') : noteSVG(g, v, W * .45, 'bad') + spec.right.map(n => noteSVG(g, n, W * .75, 'right')).join('');
+  } else if (spec.type === 'multi') {
+    $('#ans').querySelectorAll('[data-l]').forEach(b => { const x = btnVal(b), r = spec.right.some(n => same(n, x)), s = b.classList.contains('sel'); b.classList.remove('sel');
+      b.classList.add(r ? (s ? 'ok' : 'right') : s ? 'bad' : '_'); });
+  } else {
+    btn.classList.add(ok ? 'ok' : 'bad');
+    if (!ok) $('#ans').querySelectorAll('[data-l],[data-i]').forEach(b => spec.ok(btnVal(b)) && b.classList.add('right'));
+  }
+  const fb = $('#fb');
+  if (ok) {
+    fb.className = 'fb ' + (ms <= goal() ? 'fast' : ms <= 2 * goal() ? 'mid' : 'slow');
+    fb.textContent = (ms / 1000).toFixed(2) + ' с' + (spec.per ? ` · ${(ms / spec.per / 1000).toFixed(2)} с на ноту` : '');
+    nextT = setTimeout(next, spec.play ? 800 : 450);
+  } else {
+    const enh = spec.type === 'notes' && pc(v) === pc(spec.right), ex = spec.ex ?? cur.ex?.(item, oFn(cur));
+    const hear = spec.hear ? `<p class="hear"><button data-hear="${spec.options.findIndex((_, j) => spec.ok(j))}">▶ правильный</button><button data-hear="${v}">▶ твой ответ</button></p>` : '';
+    fb.className = 'fb wrong'; waitTap = true;
+    fb.innerHTML = `<b>Правильно: ${spec.text}</b>${enh ? ' — звучит так же, но пишется иначе' : ''}${ex ? `<div>${ex}</div>` : ''}${hear}<small>нажми, чтобы продолжить</small>`;
+  }
+}
+function record(ok, ms) {
+  const id = item.sid || cur.id, key = item.skey || item.key, st = S.st[id] ||= {}, s = st[key];
+  if (!s) st[key] = { n: 1, t: Math.round(ok ? ms : Math.max(ms, 2 * S.goal)), e: ok ? 0 : 1 };
+  else { s.n++; s.e = +(s.e * .6 + (ok ? 0 : .4)).toFixed(3); if (ok) s.t = Math.round(s.t * .6 + ms * .4); }
+  sess.n++;
+  if (ok) { sess.ok++; sess.ms += ms; sess.streak++; } else sess.streak = 0;
+  save(); stat();
+}
+function stat() {
+  const its = itemsOf(cur);
+  $('#stat').innerHTML = `<span>серия <b>${sess.streak}</b></span><span>верно <b>${sess.ok}/${sess.n}</b></span><span>в среднем <b>${sess.ok ? (sess.ms / sess.ok / 1000).toFixed(2) + ' с' : '—'}</b></span><span>выучено <b>${its.filter(i => mastered(stOf(i))).length}/${its.length}</b></span>`;
+}
+
+$('#app').addEventListener('click', e => {
+  if (!cur) return;
+  const h = e.target.closest('[data-hear]');
+  if (h) { stopAudio(); spec.hear(+h.dataset.hear); return; }
+  if (e.target.closest('[data-play]')) return play();
+  if (locked) { if (waitTap && performance.now() - tAns > 300 && e.target.closest('#q,#fb,#ans')) next(); return; }
+  const o = e.target.closest('[data-opt]');
+  if (o) {
+    const k = o.dataset.opt, def = OPT[k], was = opt(cur, k);
+    let v = def.vals ? parse(o.dataset.v) : !was;
+    if (def.multi) { v = was.includes(v) ? was.filter(x => x !== v) : [...was, v].sort(); if (!v.length) return; }
+    (S.o[cur.id] ||= {})[k] = v; save();
+    $('#opts').innerHTML = optsHTML(); last = []; next();
+    return;
+  }
+  const a = e.target.closest('#ans [data-acc]');
+  if (a) return setPend(+a.dataset.acc);
+  if (e.target.closest('[data-done]')) return answer(sel());
+  const b = e.target.closest('#ans [data-l], #ans [data-i]');
+  if (b && spec.type === 'multi') { if (t0 != null) b.classList.toggle('sel'); return; }
+  if (b) answer(btnVal(b), b);
+});
+addEventListener('keydown', e => {
+  if (!cur || e.target.closest?.('dialog') || e.ctrlKey || e.metaKey || e.altKey) return;
+  if (e.key === 'Escape') { location.hash = cur.id === 'weak' ? 'weak' : ''; return; }
+  if (locked) { if (waitTap && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); next(); } return; }
+  if (e.key === ' ' && spec.play) { e.preventDefault(); return play(); }
+  const k = e.key.toLowerCase();
+  if (k === '-') return setPend(pend === -1 ? 0 : -1);
+  if (k === '=' || k === '+' || k === '#') return setPend(pend === 1 ? 0 : 1);
+  if (spec.type === 'multi' && e.key === 'Enter') return answer(sel());
+  if (spec.type === 'notes' || spec.type === 'multi') {
+    let l = 'cdefgabh'.indexOf(k), a = spec.rows === 3 ? pend : 0;
+    if (l < 0) return;
+    if (l === 7) l = 6;
+    if (S.h && k === 'b' && spec.rows === 3) a = -1;
+    const btn = $(`#ans [data-l="${l}"][data-a="${a}"]`);
+    if (btn && spec.type === 'multi') { btn.classList.toggle('sel'); setPend(0); }
+    else if (btn) answer(N(l, a), btn);
+  } else if (spec.type === 'choice') {
+    const btn = [...document.querySelectorAll('#ans [data-i]')].find(b => b.textContent === e.key);
+    if (btn) answer(+btn.dataset.i, btn);
+  }
+});
+
+// ---------- настройки ----------
+let dirty = false;
+function openSet() { renderSet(); set.showModal(); }
+function renderSet() {
+  const row = (lab, k, vals) => `<div class="srow"><span>${lab}</span><span class="seg">${vals.map(([v, t]) => `<button data-set="${k}" data-v="${v}" class="${S[k] === v ? 'on' : ''}">${t}</button>`).join('')}</span></div>`;
+  $('#setb').innerHTML = row('Названия нот в ответах и вопросах', 'naming', [['syl', 'До Ре Ми'], ['let', 'C D E']])
+    + row('Си в буквенной записи', 'h', [[false, 'B'], [true, 'H (а B = Си♭)']])
+    + row('Цель по времени ответа', 'goal', [[1000, '1 с'], [1500, '1,5 с'], [2000, '2 с'], [3000, '3 с']])
+    + '<button class="reset" data-reset>Сбросить прогресс</button>';
+}
+set.addEventListener('click', e => {
+  const b = e.target.closest('[data-set]');
+  if (b) { S[b.dataset.set] = parse(b.dataset.v); save(); renderSet(); dirty = true; }
+  if (e.target.closest('[data-reset]') && confirm('Сбросить весь прогресс?')) { S.st = {}; save(); dirty = true; }
+});
+set.addEventListener('close', () => { if (dirty) route(); dirty = false; });
+
+// ---------- старт ----------
+function route() {
+  clearTimers(); stopAudio();
+  const h = location.hash.slice(1), wl = h === 'weak-go' && weakList().slice(0, 20);
+  cur = wl?.length ? weakDrill(wl) : D.find(d => d.id === h);
+  cur ? drill() : h.startsWith('weak') ? weak() : home();
+  scrollTo(0, 0);
+}
+addEventListener('hashchange', route);
+route();
+// шрифт с ключами грузится не сразу — перерисовать вопрос с правильными метриками
+addEventListener('load', () => document.fonts?.load('40px "Noto Music"', '𝄞𝄢♯♭♮').then(() => { GM = {}; if (cur && !locked) render(); }));
+</script>
+</body>
+</html>
